@@ -1,0 +1,1042 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Water Level Monitoring Dashboard</title>
+
+<style>
+:root {
+  --primary: #087f8c;
+  --primary-dark: #05636e;
+  --bg: #f3f7f8;
+  --white: #ffffff;
+  --text: #172b4d;
+  --muted: #718096;
+  --green: #16a36a;
+  --yellow: #e6a700;
+  --red: #dc3545;
+  --border: #e5ebef;
+  --shadow: 0 4px 16px rgba(0,0,0,.06);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.container {
+  width: 100%;
+  max-width: 1500px;
+  margin: auto;
+  padding: 24px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-bottom: 25px;
+}
+
+.header h1 {
+  color: var(--primary);
+  font-size: 25px;
+}
+
+.header p {
+  color: var(--muted);
+  margin-top: 6px;
+  font-size: 13px;
+}
+
+.connection {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  padding: 11px 16px;
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  font-size: 13px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--yellow);
+}
+
+.dot.online {
+  background: var(--green);
+}
+
+.dot.offline {
+  background: var(--red);
+}
+
+.section-title {
+  font-size: 17px;
+  margin-bottom: 15px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.card {
+  background: var(--white);
+  border-radius: 13px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  min-width: 0;
+}
+
+.card-label {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.card-value {
+  font-size: 27px;
+  font-weight: bold;
+  color: var(--primary);
+  overflow-wrap: anywhere;
+}
+
+.card-description {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 8px;
+}
+
+.status-normal {
+  color: var(--green);
+}
+
+.status-warning {
+  color: var(--yellow);
+}
+
+.status-danger {
+  color: var(--red);
+}
+
+.sensor-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 13px;
+  margin-bottom: 25px;
+}
+
+.sensor-card {
+  background: white;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  padding: 18px 10px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.sensor-icon {
+  font-size: 25px;
+  margin-bottom: 10px;
+}
+
+.sensor-card h3 {
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.sensor-value {
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.active {
+  color: var(--green);
+}
+
+.inactive {
+  color: var(--red);
+}
+
+.panel {
+  background: white;
+  padding: 20px;
+  border-radius: 13px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  margin-bottom: 25px;
+  min-width: 0;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 17px;
+}
+
+.panel-header h2 {
+  font-size: 17px;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+button, input {
+  padding: 10px 13px;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  font-size: 13px;
+}
+
+button {
+  cursor: pointer;
+  background: var(--primary);
+  color: white;
+  border: none;
+}
+
+button:hover {
+  background: var(--primary-dark);
+}
+
+button.secondary {
+  background: #e9f3f4;
+  color: var(--primary);
+}
+
+input[type="date"] {
+  background: white;
+  color: var(--text);
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.summary-item {
+  background: var(--bg);
+  padding: 16px;
+  border-radius: 10px;
+}
+
+.summary-item p {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 7px;
+}
+
+.summary-item h3 {
+  font-size: 23px;
+}
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  min-width: 850px;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 13px 12px;
+  border-bottom: 1px solid var(--border);
+  text-align: center;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+th {
+  background: #edf5f6;
+  color: var(--primary-dark);
+  font-weight: bold;
+}
+
+tr:hover td {
+  background: #f8fbfc;
+}
+
+.badge {
+  display: inline-block;
+  padding: 5px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.badge-normal {
+  color: #087b4d;
+  background: #d9f7e9;
+}
+
+.badge-warning {
+  color: #946500;
+  background: #fff1c2;
+}
+
+.badge-danger {
+  color: #b42332;
+  background: #ffe0e3;
+}
+
+.badge-unknown {
+  color: #64748b;
+  background: #edf1f5;
+}
+
+.empty {
+  text-align: center;
+  padding: 30px;
+  color: var(--muted);
+}
+
+.footer {
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+  padding: 15px;
+}
+
+.error-message {
+  color: var(--red);
+  font-size: 13px;
+  margin-top: 10px;
+}
+
+@media(max-width: 1000px) {
+  .sensor-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media(max-width: 600px) {
+  .container {
+    padding: 13px;
+  }
+
+  .header h1 {
+    font-size: 20px;
+  }
+
+  .cards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .card {
+    padding: 14px;
+  }
+
+  .card-value {
+    font-size: 22px;
+  }
+
+  .sensor-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .panel {
+    padding: 13px;
+  }
+
+  .panel-header {
+    align-items: flex-start;
+  }
+
+  .controls {
+    width: 100%;
+  }
+
+  .controls button,
+  .controls input {
+    flex: 1;
+  }
+
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <header class="header">
+    <div>
+      <h1>💧 Water Level Monitoring</h1>
+      <p>ESP32 Real-Time Water Monitoring System</p>
+    </div>
+
+    <div class="connection">
+      <span class="dot" id="connectionDot"></span>
+      <span id="connectionText">Connecting...</span>
+    </div>
+  </header>
+
+  <h2 class="section-title">Monitoring Overview</h2>
+
+  <section class="cards">
+
+    <div class="card">
+      <p class="card-label">Current Water Status</p>
+      <div class="card-value" id="currentStatus">--</div>
+      <p class="card-description">Latest sensor condition</p>
+    </div>
+
+    <div class="card">
+      <p class="card-label">Active Sensors</p>
+      <div class="card-value" id="activeSensors">0 / 6</div>
+      <p class="card-description">Sensors detecting water</p>
+    </div>
+
+    <div class="card">
+      <p class="card-label">Total Records</p>
+      <div class="card-value" id="totalRecords">0</div>
+      <p class="card-description">All records from Google Sheets</p>
+    </div>
+
+    <div class="card">
+      <p class="card-label">Latest Test</p>
+      <div class="card-value" id="latestTest">--</div>
+      <p class="card-description">Latest maintenance/test result</p>
+    </div>
+
+  </section>
+
+  <h2 class="section-title">Water Level Sensors</h2>
+
+  <section class="sensor-grid" id="sensorGrid">
+
+    <div class="sensor-card">
+      <div class="sensor-icon">💧</div>
+      <h3>barangay Level 1</h3>
+      <p class="sensor-value">WAITING</p>
+    </div>
+
+    <div class="sensor-card">
+      <div class="sensor-icon">💧</div>
+      <h3>Level 2</h3>
+      <p class="sensor-value">WAITING</p>
+    </div>
+
+    <div class="sensor-card">
+      <div class="sensor-icon">💧</div>
+      <h3>Level 3</h3>
+      <p class="sensor-value">WAITING</p>
+    </div>
+
+    <div class="sensor-card">
+      <div class="sensor-icon">💧</div>
+      <h3>Level 4</h3>
+      <p class="sensor-value">WAITING</p>
+    </div>
+
+    <div class="sensor-card">
+      <div class="sensor-icon">💧</div>
+      <h3>Level 5</h3>
+      <p class="sensor-value">WAITING</p>
+    </div>
+
+    <div class="sensor-card">
+      <div class="sensor-icon">💧</div>
+      <h3>Level 6</h3>
+      <p class="sensor-value">WAITING</p>
+    </div>
+
+  </section>
+
+  <section class="panel">
+
+    <div class="panel-header">
+      <h2>Water Monitoring History</h2>
+
+      <div class="controls">
+        <button class="secondary" onclick="filterToday()">Today</button>
+        <button class="secondary" onclick="filterYesterday()">Yesterday</button>
+        <input type="date" id="dateFilter">
+        <button onclick="filterCustomDate()">Search</button>
+        <button class="secondary" onclick="showAllHistory()">All</button>
+        <button onclick="loadData()">Refresh</button>
+      </div>
+    </div>
+
+    <div class="summary-grid">
+
+      <div class="summary-item">
+        <p>Normal Records</p>
+        <h3 class="status-normal" id="normalCount">0</h3>
+      </div>
+
+      <div class="summary-item">
+        <p>Warning Records</p>
+        <h3 class="status-warning" id="warningCount">0</h3>
+      </div>
+
+      <div class="summary-item">
+        <p>Evacuate Records</p>
+        <h3 class="status-danger" id="evacuateCount">0</h3>
+      </div>
+
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>brgyL1</th>
+            <th>bryL2</th>
+            <th>bryL3</th>
+            <th>riverL4</th>
+            <th>riverL5</th>
+            <th>riverL6</th>
+            <th>Status</th>
+            <th>Test</th>
+          </tr>
+        </thead>
+
+        <tbody id="logTable">
+          <tr>
+            <td colspan="9" class="empty">Loading records...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p id="errorMessage" class="error-message"></p>
+
+  </section>
+
+  <footer class="footer">
+    ESP32 Water Level Monitoring System | Google Sheets Integration
+    <br>
+    <span id="lastUpdated">Last updated: --</span>
+  </footer>
+
+</div>
+
+<script>
+
+// ==========================================
+// GOOGLE APPS SCRIPT API
+// ==========================================
+
+const API_URL =
+"https://script.google.com/macros/s/AKfycbz7gyrIPi-vjPnzzxqlOcQZuihAguEvw3gQm69QeuEJvRKO2E84f-D4-jWni4rR17-bUg/exec";
+
+let allLogs = [];
+let selectedDate = null;
+let isLoading = false;
+
+
+// ==========================================
+// JSONP API REQUEST
+// ==========================================
+
+function requestAPI(callback) {
+
+  const callbackName =
+    "waterCallback_" + Date.now() + "_" +
+    Math.floor(Math.random() * 100000);
+
+  const script = document.createElement("script");
+
+  let finished = false;
+
+  const timeout = setTimeout(function() {
+    finish();
+    callback({
+      success: false,
+      message: "API request timeout"
+    });
+  }, 15000);
+
+  function finish() {
+    if (finished) return;
+
+    finished = true;
+    clearTimeout(timeout);
+
+    delete window[callbackName];
+
+    if (script.parentNode) {
+      script.parentNode.removeChild(script);
+    }
+  }
+
+  window[callbackName] = function(data) {
+    finish();
+    callback(data);
+  };
+
+  script.onerror = function() {
+    finish();
+
+    callback({
+      success: false,
+      message: "Cannot connect to Google Apps Script"
+    });
+  };
+
+  script.src =
+    API_URL +
+    "?callback=" + encodeURIComponent(callbackName) +
+    "&_=" + Date.now();
+
+  document.body.appendChild(script);
+}
+
+
+// ==========================================
+// LOAD ALL RECORDS
+// ==========================================
+
+function loadData() {
+
+  if (isLoading) return;
+
+  isLoading = true;
+
+  document.getElementById("errorMessage").textContent = "";
+
+  requestAPI(function(data) {
+
+    isLoading = false;
+
+    if (!data || data.success !== true) {
+
+      setConnection(false);
+
+      document.getElementById("errorMessage").textContent =
+        data?.message || "Unable to load records.";
+
+      return;
+    }
+
+    allLogs = Array.isArray(data.logs) ? data.logs : [];
+
+    setConnection(true);
+
+    document.getElementById("totalRecords").textContent =
+      data.total ?? allLogs.length;
+
+    document.getElementById("lastUpdated").textContent =
+      "Last updated: " + new Date().toLocaleString();
+
+    if (allLogs.length > 0) {
+      updateDashboard(allLogs[0]);
+    }
+
+    if (selectedDate) {
+      showHistory(selectedDate);
+    } else {
+      showAllHistory();
+    }
+
+  });
+}
+
+
+// ==========================================
+// CONNECTION STATUS
+// ==========================================
+
+function setConnection(online) {
+
+  const dot = document.getElementById("connectionDot");
+  const label = document.getElementById("connectionText");
+
+  dot.className = online ? "dot online" : "dot offline";
+
+  label.textContent = online ? "Connected" : "Disconnected";
+}
+
+
+// ==========================================
+// SENSOR VALUE
+// ==========================================
+
+function sensorValue(value) {
+
+  return (
+    value === 1 ||
+    value === "1" ||
+    String(value).toUpperCase() === "WET" ||
+    String(value).toUpperCase() === "ACTIVE" ||
+    value === true
+  );
+}
+
+
+// ==========================================
+// UPDATE SENSOR CARDS
+// ==========================================
+
+function updateDashboard(row) {
+
+  const levels = [
+    row.bLevel1,
+    row.Level2,
+    row.Level3,
+    row.Level4,
+    row.Level5,
+    row.Level6
+  ];
+
+  const activeCount = levels.filter(sensorValue).length;
+
+  document.getElementById("activeSensors").textContent =
+    activeCount + " / 6";
+
+  const grid = document.getElementById("sensorGrid");
+
+  grid.innerHTML = levels.map(function(value, index) {
+
+    const active = sensorValue(value);
+
+    return `
+      <div class="sensor-card">
+        <div class="sensor-icon">💧</div>
+        <h3>Level ${index + 1}</h3>
+        <p class="sensor-value ${active ? "active" : "inactive"}">
+          ${active ? "ACTIVE" : "INACTIVE"}
+        </p>
+      </div>
+    `;
+
+  }).join("");
+
+  const status = String(row.Status || "UNKNOWN").toUpperCase();
+
+  const statusElement = document.getElementById("currentStatus");
+
+  statusElement.textContent = status;
+  statusElement.className = "card-value " + getStatusClass(status);
+
+  document.getElementById("latestTest").textContent =
+    row.Test || "NO";
+}
+
+
+// ==========================================
+// STATUS CLASS
+// ==========================================
+
+function getStatusClass(status) {
+
+  status = String(status).toUpperCase();
+
+  if (status.includes("NORMAL") || status.includes("GOOD")) {
+    return "status-normal";
+  }
+
+  if (status.includes("WARNING")) {
+    return "status-warning";
+  }
+
+  if (
+    status.includes("EVACUATE") ||
+    status.includes("DANGER") ||
+    status.includes("CRITICAL")
+  ) {
+    return "status-danger";
+  }
+
+  return "";
+}
+
+
+// ==========================================
+// STATUS BADGE
+// ==========================================
+
+function statusBadge(status) {
+
+  const value = String(status || "UNKNOWN").toUpperCase();
+
+  let className = "badge-unknown";
+
+  if (value.includes("NORMAL") || value.includes("GOOD")) {
+    className = "badge-normal";
+  } else if (value.includes("WARNING")) {
+    className = "badge-warning";
+  } else if (
+    value.includes("EVACUATE") ||
+    value.includes("DANGER") ||
+    value.includes("CRITICAL")
+  ) {
+    className = "badge-danger";
+  }
+
+  return `<span class="badge ${className}">${escapeHTML(value)}</span>`;
+}
+
+
+// ==========================================
+// SENSOR TABLE DISPLAY
+// ==========================================
+
+function sensorStatusHTML(value) {
+
+  const active = sensorValue(value);
+
+  return `
+    <span class="badge ${active ? "badge-normal" : "badge-danger"}">
+      ${active ? "ACTIVE" : "INACTIVE"}
+    </span>
+  `;
+}
+
+
+// ==========================================
+// DATE PARSER
+// ==========================================
+
+function parseTimestamp(value) {
+
+  if (!value) return null;
+
+  const date = new Date(value);
+
+  if (isNaN(date.getTime())) return null;
+
+  return date;
+}
+
+
+// ==========================================
+// LOCAL DATE KEY
+// ==========================================
+
+function dateKey(date) {
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+
+// ==========================================
+// DISPLAY DATE
+// ==========================================
+
+function formatTimestamp(value) {
+
+  const date = parseTimestamp(value);
+
+  if (!date) return escapeHTML(value || "--");
+
+  return date.toLocaleString();
+}
+
+
+// ==========================================
+// ESCAPE HTML
+// ==========================================
+
+function escapeHTML(value) {
+
+  return String(value ?? "").replace(/[&<>"']/g, function(char) {
+    return {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    }[char];
+  });
+}
+
+
+// ==========================================
+// SHOW HISTORY
+// ==========================================
+
+function showHistory(date) {
+
+  selectedDate = date;
+
+  const filtered = allLogs.filter(function(row) {
+
+    const timestamp = parseTimestamp(row.Timestamp);
+
+    return timestamp && dateKey(timestamp) === date;
+  });
+
+  renderHistory(filtered);
+
+}
+
+
+// ==========================================
+// SHOW ALL HISTORY
+// ==========================================
+
+function showAllHistory() {
+
+  selectedDate = null;
+
+  document.getElementById("dateFilter").value = "";
+
+  renderHistory(allLogs);
+}
+
+
+// ==========================================
+// RENDER TABLE
+// ==========================================
+
+function renderHistory(rows) {
+
+  const table = document.getElementById("logTable");
+
+  let normal = 0;
+  let warning = 0;
+  let evacuate = 0;
+
+  if (!rows.length) {
+
+    table.innerHTML = `
+      <tr>
+        <td colspan="9" class="empty">
+          No records found for the selected date.
+        </td>
+      </tr>
+    `;
+
+  } else {
+
+    table.innerHTML = rows.map(function(row) {
+
+      const status = String(row.Status || "").toUpperCase();
+
+      if (status.includes("NORMAL") || status.includes("GOOD")) {
+        normal++;
+      } else if (status.includes("WARNING")) {
+        warning++;
+      } else if (
+        status.includes("EVACUATE") ||
+        status.includes("DANGER") ||
+        status.includes("CRITICAL")
+      ) {
+        evacuate++;
+      }
+
+      return `
+        <tr>
+          <td>${formatTimestamp(row.Timestamp)}</td>
+          <td>${sensorStatusHTML(row.brgyLevel1)}</td>
+          <td>${sensorStatusHTML(row.brgyLevel2)}</td>
+          <td>${sensorStatusHTML(row.bryLevel3)}</td>
+          <td>${sensorStatusHTML(row.Level4)}</td>
+          <td>${sensorStatusHTML(row.Level5)}</td>
+          <td>${sensorStatusHTML(row.Level6)}</td>
+          <td>${statusBadge(row.Status)}</td>
+          <td>${escapeHTML(row.Test || "NO")}</td>
+        </tr>
+      `;
+
+    }).join("");
+
+  }
+
+  document.getElementById("normalCount").textContent = normal;
+  document.getElementById("warningCount").textContent = warning;
+  document.getElementById("evacuateCount").textContent = evacuate;
+
+}
+
+
+// ==========================================
+// DATE FILTER BUTTONS
+// ==========================================
+
+function filterToday() {
+
+  const today = dateKey(new Date());
+
+  document.getElementById("dateFilter").value = today;
+
+  showHistory(today);
+}
+
+
+function filterYesterday() {
+
+  const yesterday = new Date();
+
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  const date = dateKey(yesterday);
+
+  document.getElementById("dateFilter").value = date;
+
+  showHistory(date);
+}
+
+
+function filterCustomDate() {
+
+  const date = document.getElementById("dateFilter").value;
+
+  if (!date) {
+    alert("Please select a date.");
+    return;
+  }
+
+  showHistory(date);
+}
+
+
+// ==========================================
+// INITIALIZE
+// ==========================================
+
+loadData();
+
+// AUTO REFRESH EVERY 5 SECONDS
+setInterval(loadData, 5000);
+
+</script>
+
+</body>
+</html>
